@@ -101,7 +101,14 @@ Token lexer_get_next_token(Lexer* lexer) {
         token.type = TOKEN_RPAREN;
         strcpy(token.lexeme, ")");
         lexer_advance(lexer);
-    } else {
+    } 
+        else if (lexer->current_char == '%') {
+        token.type = TOKEN_MOD;
+        strcpy(token.lexeme, "%");
+        lexer_advance(lexer);
+    }
+    
+    else {
         // printf("Erro: caractere não reconhecido '%c'\n", lexer->current_char);
         exit(1);
     }

@@ -1,5 +1,6 @@
 #include "../include/expression.h"
 
+
 // Função para pular espaços em branco
 void skipSpaces(char **expr) {
     while (isspace(**expr))
@@ -32,19 +33,26 @@ int parseTerm(char **expr) {
     int left = parseFactor(expr);
     
     skipSpaces(expr);
-    while (**expr == '*' || **expr == '/') {
+    while (**expr == '*' || **expr == '/' || **expr == '%') {
         char op = **expr;
         (*expr)++;
         int right = parseFactor(expr);
         
         if (op == '*')
             left *= right;
-        else {
+        else if (op == '/') {
             if (right == 0) {
                 fprintf(stderr, "Erro: Divisão por zero\n");
                 exit(EXIT_FAILURE);
             }
             left /= right;  // Divisão inteira
+        }
+        else if (op == '%') {
+            if (right == 0) {
+                fprintf(stderr, "Erro: Módulo por zero\n");
+                exit(EXIT_FAILURE);
+            }
+            left %= right;  // Operação módulo
         }
         
         skipSpaces(expr);

@@ -96,11 +96,30 @@ void parse_F(Parser* parser) {
 }
 
 int parser_parse(Parser* parser) {
-    parse_E(parser);
-    if (parser->current_token.type != TOKEN_EOF) {
-        // printf("Erro de sintaxe: esperado EOF, mas recebido token tipo %d (%s)\n", 
-        //        parser->current_token.type, parser->current_token.lexeme);
+    // Verificar se a expressão começa com um parêntese de fechamento
+    if (parser->current_token.type == TOKEN_RPAREN) {
+        return 0; // Erro sintático: expressão começa com parêntese de fechamento
+    } else if (parser->current_token.type == TOKEN_MINUS) {
         return 0;
     }
+    else if (parser->current_token.type == TOKEN_PLUS) {
+        return 0;
+    }
+    else if (parser->current_token.type == TOKEN_MULT) {
+        return 0;
+    }
+    else if (parser->current_token.type == TOKEN_DIV) {
+        return 0;
+    }
+    else if (parser->current_token.type == TOKEN_MOD) {
+        return 0;
+    }
+    
+    parse_E(parser);
+    
+    if (parser->current_token.type != TOKEN_EOF) {
+        return 0; // Erro sintático: tokens extras após a expressão
+    }
+    
     return 1;
 }

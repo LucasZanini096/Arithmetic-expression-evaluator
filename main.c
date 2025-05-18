@@ -23,7 +23,7 @@ int main (int argc, char *argv[]) {
     
     int success = parser_parse(parser);
 
-    printf("Sucesso: %d\n", success);
+    // printf("Sucesso: %d\n", success);
     
     if (success) {
 
