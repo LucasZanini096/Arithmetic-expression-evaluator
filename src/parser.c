@@ -81,7 +81,6 @@ void parser_eat(Parser* parser, TokenType token_type) {
 // F ::= num | ( E )
 
 void parse_F(Parser* parser) {
-    // printf("Analisando F\n");
     if (parser->current_token.type == TOKEN_NUM) {
         parser_eat(parser, TOKEN_NUM);
     } else if (parser->current_token.type == TOKEN_LPAREN) {
@@ -89,36 +88,43 @@ void parse_F(Parser* parser) {
         parse_E(parser);
         parser_eat(parser, TOKEN_RPAREN);
     } else {
-        // printf("Erro de sintaxe: esperado número ou '(', mas recebido token tipo %d (%s)\n", 
-        //        parser->current_token.type, parser->current_token.lexeme);
+        // Token inválido - força erro
+        // fprintf(stderr, "Erro de sintaxe: token inválido '%s'\n", parser->current_token.lexeme);
         exit(1);
     }
 }
 
 int parser_parse(Parser* parser) {
-    // Verificar se a expressão começa com um parêntese de fechamento
+    // Primeiro verifica se há algum token de erro
+    if (parser->current_token.type == TOKEN_ERROR) {
+        return 0;
+    }
+
+    // Verifica se começa com parêntese direito (inválido)
     if (parser->current_token.type == TOKEN_RPAREN) {
-        return 0; // Erro sintático: expressão começa com parêntese de fechamento
-    } else if (parser->current_token.type == TOKEN_MINUS) {
         return 0;
     }
-    else if (parser->current_token.type == TOKEN_PLUS) {
+
+    // Verifica se começa com operadores (inválido)
+    if (parser->current_token.type == TOKEN_MOD || 
+        parser->current_token.type == TOKEN_MULT || 
+        parser->current_token.type == TOKEN_DIV || 
+        parser->current_token.type == TOKEN_PLUS || 
+        parser->current_token.type == TOKEN_MINUS) {
         return 0;
     }
-    else if (parser->current_token.type == TOKEN_MULT) {
-        return 0;
-    }
-    else if (parser->current_token.type == TOKEN_DIV) {
-        return 0;
-    }
-    else if (parser->current_token.type == TOKEN_MOD) {
+
+    // Verifica se é EOF no início (entrada vazia)
+    if (parser->current_token.type == TOKEN_EOF) {
         return 0;
     }
     
+    // Tenta fazer o parse da expressão
     parse_E(parser);
     
+    // Verifica se chegou ao final corretamente
     if (parser->current_token.type != TOKEN_EOF) {
-        return 0; // Erro sintático: tokens extras após a expressão
+        return 0;
     }
     
     return 1;

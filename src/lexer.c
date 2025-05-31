@@ -93,6 +93,10 @@ Token lexer_get_next_token(Lexer* lexer) {
         token.type = TOKEN_DIV;
         strcpy(token.lexeme, "/");
         lexer_advance(lexer);
+    } else if (lexer->current_char == '%') {
+        token.type = TOKEN_MOD;
+        strcpy(token.lexeme, "%");
+        lexer_advance(lexer);
     } else if (lexer->current_char == '(') {
         token.type = TOKEN_LPAREN;
         strcpy(token.lexeme, "(");
@@ -101,16 +105,11 @@ Token lexer_get_next_token(Lexer* lexer) {
         token.type = TOKEN_RPAREN;
         strcpy(token.lexeme, ")");
         lexer_advance(lexer);
-    } 
-        else if (lexer->current_char == '%') {
-        token.type = TOKEN_MOD;
-        strcpy(token.lexeme, "%");
+    } else {
+        // Caractere inválido - retorna token de erro em vez de sair
+        token.type = TOKEN_ERROR;
+        // sprintf(token.lexeme, "ERRO_%c", lexer->current_char);
         lexer_advance(lexer);
-    }
-    
-    else {
-        // printf("Erro: caractere não reconhecido '%c'\n", lexer->current_char);
-        exit(1);
     }
     
     return token;

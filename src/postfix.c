@@ -1,5 +1,6 @@
 #include "../include/postfix.h"
 
+//Função para eliminar espaços em branco de uma expressão
 void eliminateWhiteSpaces(char* exp) {
     char* src = exp;
     char* dst = exp;
@@ -41,16 +42,27 @@ void infixToPostfix(char* exp) {
     int j = 0;
 
     for (int i = 0; exp[i]; i++) {
-        if (isalnum(exp[i])) {
-            output[j++] = exp[i];
-        } else if (exp[i] == '(') {
+        // Se é um dígito, processe o número completo
+        if (isdigit(exp[i])) {
+            // Adiciona todos os dígitos do número
+            while (i < strlen(exp) && isdigit(exp[i])) {
+                output[j++] = exp[i++];
+            }
+            i--; // Volta um índice porque o for vai incrementar
+        }
+        // Se é parêntese de abertura
+        else if (exp[i] == '(') {
             stack[++top] = exp[i];
-        } else if (exp[i] == ')') {
+        }
+        // Se é parêntese de fechamento
+        else if (exp[i] == ')') {
             while (top != -1 && stack[top] != '(') {
                 output[j++] = stack[top--];
             }
             top--; // Remove '('
-        } else {
+        }
+        // Se é um operador
+        else if (prec(exp[i]) > 0) {
             while (top != -1 && prec(stack[top]) >= prec(exp[i])) {
                 output[j++] = stack[top--];
             }
@@ -58,10 +70,12 @@ void infixToPostfix(char* exp) {
         }
     }
 
+    // Remove operadores restantes da pilha
     while (top != -1) {
         output[j++] = stack[top--];
     }
+    
     output[j] = '\0';
 
-    printf("%s\n", output);
+    printf("%s", output);
 }

@@ -1,3 +1,14 @@
+/* 
+   PROJETO N2 - Avaliador de expressões aritméticas 
+   Semestre: 2025/1 
+   Curso: Ciência da Computação - Mackenzie
+   Disciplina: Linguagens Formais e Autômatos
+   Aluno: Lucas Zanini da Silva - 10417361
+   Turma: 5D
+   Professor: Leonardo Massayuki Takuno
+
+*/
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -13,28 +24,25 @@ int main (int argc, char *argv[]) {
     
     fgets(input, sizeof(input), stdin);
 
-    printf("%s => ", input);
-    
     // Remove a quebra de linha
     input[strcspn(input, "\n")] = 0;
+
+    printf("%s => ", input);
     
     Lexer* lexer = init_lexer(input);
     Parser* parser = init_parser(lexer);
-    
     int success = parser_parse(parser);
-
-    // printf("Sucesso: %d\n", success);
     
-    if (success) {
+    if (success && parser->current_token.type == TOKEN_EOF) {
 
         // Converte a expressão infixa para pós-fixa
+        
         char postfix[1000];
         strcpy(postfix, input);
         eliminateWhiteSpaces(postfix);
         infixToPostfix(postfix);
 
-        printf("%s", postfix);
-
+        //Resultado da expressão pós-fixa
         int result = evaluateExpression(postfix);
         printf("=%d\n", result);
 
@@ -42,7 +50,6 @@ int main (int argc, char *argv[]) {
     } else {
         printf("Erro Sintático \n");
     }
-
 
     // Libera a memória
     destroy_parser(parser);

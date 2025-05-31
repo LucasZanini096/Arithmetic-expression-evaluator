@@ -1,6 +1,5 @@
 #include "../include/expression.h"
 
-
 // Função para pular espaços em branco
 void skipSpaces(char **expr) {
     while (isspace(**expr))
@@ -52,7 +51,7 @@ int parseTerm(char **expr) {
                 fprintf(stderr, "Erro: Módulo por zero\n");
                 exit(EXIT_FAILURE);
             }
-            left %= right;  // Operação módulo
+            left %= right;
         }
         
         skipSpaces(expr);
@@ -96,11 +95,84 @@ int parseFactor(char **expr) {
         return -parseFactor(expr);
     }
     
-    fprintf(stderr, "Erro: Expressão inválida\n");
+    fprintf(stderr, "Expressão inválida\n");
     exit(EXIT_FAILURE);
 }
 
-// Função para avaliar uma string como expressão aritmética
+// Nova função para avaliar expressão em notação pós-fixa compacta
+int evaluatePostfix(const char *postfix) {
+    int stack[100];
+    int top = -1;
+    int i = 0;
+    
+    while (postfix[i] != '\0') {
+        // Se é um dígito, processa o número completo
+        if (isdigit(postfix[i])) {
+            int num = 0;
+            while (i < strlen(postfix) && isdigit(postfix[i])) {
+                num = num * 10 + (postfix[i] - '0');
+                i++;
+            }
+            stack[++top] = num;
+        }
+        // Se é um operador
+        else if (strchr("+-*/%", postfix[i])) {
+            if (top < 1) {
+                fprintf(stderr, "Expressão inválida\n");
+                exit(EXIT_FAILURE);
+            }
+            
+            int operand2 = stack[top--];
+            int operand1 = stack[top--];
+            int result;
+            
+            switch (postfix[i]) {
+                case '+':
+                    result = operand1 + operand2;
+                    break;
+                case '-':
+                    result = operand1 - operand2;
+                    break;
+                case '*':
+                    result = operand1 * operand2;
+                    break;
+                case '/':
+                    if (operand2 == 0) {
+                        fprintf(stderr, "Expressão inválida\n");
+                        exit(EXIT_FAILURE);
+                    }
+                    result = operand1 / operand2;
+                    break;
+                case '%':
+                    if (operand2 == 0) {
+                        fprintf(stderr, "Expressão inválida\n");
+                        exit(EXIT_FAILURE);
+                    }
+                    result = operand1 % operand2;
+                    break;
+                default:
+                    fprintf(stderr, "Expressão inválida\n");
+                    exit(EXIT_FAILURE);
+            }
+            
+            stack[++top] = result;
+            i++;
+        }
+        else {
+            // Pula caracteres não reconhecidos (espaços, etc.)
+            i++;
+        }
+    }
+    
+    if (top != 0) {
+        fprintf(stderr, "Expressão inválida\n");
+        exit(EXIT_FAILURE);
+    }
+    
+    return stack[top];
+}
+
+// Função para avaliar uma string como expressão aritmética (infixa)
 int evaluateExpression(const char *expression) {
     char *expr = strdup(expression);
     char *start = expr;
